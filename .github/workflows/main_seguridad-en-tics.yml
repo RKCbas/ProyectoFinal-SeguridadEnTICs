@@ -80,6 +80,11 @@ jobs:
           slot-name: 'Production'
           package: .
 
+      - name: Instalar jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
       - name: Ejecutar comandos dentro del App Service (modo no interactivo)
         uses: azure/cli@v2
         with:
@@ -95,10 +100,8 @@ jobs:
 
             echo "Túnel creado en puerto $PORT"
 
-            # Esperar a que el túnel esté listo
             sleep 5
 
-            # Función para ejecutar comandos dentro del contenedor
             run() {
               curl -s -k \
                 -X POST "http://127.0.0.1:$PORT/api/ssh/command" \
