@@ -79,3 +79,17 @@ jobs:
           app-name: 'Seguridad-en-TICs'
           slot-name: 'Production'
           package: .
+
+      - name: Ejecutar comandos post-deploy dentro del App Service
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "cp /home/site/ext/default /etc/nginx/sites-enabled/"
+
+            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "cp /home/site/ext/composer.phar /usr/local/bin/composer"
+
+            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "cd /home/site/wwwroot && composer install"
+
+            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "cd /home/site/wwwroot && php artisan migrate --force"
+
+            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "service nginx restart || nginx -s reload"
