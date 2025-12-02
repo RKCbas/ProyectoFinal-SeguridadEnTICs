@@ -11,6 +11,8 @@ class OperationsController extends Controller
 
     /**
      * Caché para almacenar valores ya calculados
+     *
+     * @var array<int, int[]>
      */
     private static array $fibonacciCache = [];
 
@@ -19,14 +21,17 @@ class OperationsController extends Controller
         return $a + $b;
     }
 
-    private function fibonacciRecursivo(int $position): array
+    /**
+     * Calcula la serie Fibonacci hasta una posición.
+     *
+     * @return array{error: string}|int[]
+     */
+    public function fibonacciRecursivo(int $position): array
     {
-        // Validar que la posición esté dentro del límite permitido
         if ($position < 0 || $position > self::MAX_FIBONACCI_POSITION) {
             return ['error' => 'Posición fuera de rango permitido'];
         }
 
-        // Casos base
         if ($position === 0) {
             return [0];
         }
@@ -34,22 +39,21 @@ class OperationsController extends Controller
             return [0, 1];
         }
 
-        // Verificar si ya está en caché
         if (isset(self::$fibonacciCache[$position])) {
             return self::$fibonacciCache[$position];
         }
 
-        // Obtener la serie anterior recursivamente
         $previousSeries = $this->fibonacciRecursivo($position - 1);
 
-        // Calcular el siguiente número de Fibonacci
+        if (isset($previousSeries['error'])) {
+            return $previousSeries;
+        }
+
         $count = count($previousSeries);
         $nextNumber = $previousSeries[$count - 1] + $previousSeries[$count - 2];
 
-        // Agregar el nuevo número a la serie
         $previousSeries[] = $nextNumber;
 
-        // Guardar en caché
         self::$fibonacciCache[$position] = $previousSeries;
 
         return $previousSeries;
