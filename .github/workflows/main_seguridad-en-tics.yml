@@ -34,6 +34,18 @@ jobs:
         run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
 
 
+      - name: Laravel optimizations
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+        env:
+          APP_ENV: production
+          APP_DEBUG: false
+          APP_KEY: ${{ secrets.APP_KEY }} # or set via env if needed just for build
+
+      - name: Create deployment package
+        run: zip -r release.zip . -x '*.git*'
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -52,7 +64,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: php-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -67,4 +79,3 @@ jobs:
           app-name: 'Seguridad-en-TICs'
           slot-name: 'Production'
           package: .
-          
