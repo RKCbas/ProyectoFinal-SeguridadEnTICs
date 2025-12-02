@@ -71,7 +71,6 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E3B1E2EF1B1D4D83A927EC95CFDB5ECA }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8D8CCEEE79794ADC9EB8263C63144F01 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_AF152B0B5C3E411F82398AD7CE3E583E }}
-
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -80,37 +79,3 @@ jobs:
           slot-name: 'Production'
           package: .
 
-      - name: Instalar jq
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-
-      - name: Ejecutar comandos dentro del App Service (modo no interactivo)
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            echo "Creando túnel SSH remoto..."
-
-            CONNECTION_INFO=$(az webapp create-remote-connection \
-              --resource-group Seguridad-en-TICs_group \
-              --name Seguridad-en-TICs \
-              --query "{port:port}" -o json)
-
-            PORT=$(echo $CONNECTION_INFO | jq -r '.port')
-
-            echo "Túnel creado en puerto $PORT"
-
-            sleep 5
-
-            run() {
-              curl -s -k \
-                -X POST "http://127.0.0.1:$PORT/api/ssh/command" \
-                -H "Content-Type: application/json" \
-                -d "{\"command\": \"$1\"}"
-            }
-
-            run "cp /home/site/ext/default /etc/nginx/sites-enabled/"
-            run "cp /home/site/ext/composer.phar /usr/local/bin/composer"
-            run "cd /home/site/wwwroot && composer install"
-            run "cd /home/site/wwwroot && php artisan migrate --force"
-            run "service nginx restart || nginx -s reload"
