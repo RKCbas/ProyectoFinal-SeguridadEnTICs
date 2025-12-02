@@ -80,16 +80,37 @@ jobs:
           slot-name: 'Production'
           package: .
 
-      - name: Ejecutar comandos post-deploy dentro del App Service
+      - name: Instalar jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Ejecutar comandos dentro del App Service (modo no interactivo)
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "cp /home/site/ext/default /etc/nginx/sites-enabled/"
+            echo "Creando túnel SSH remoto..."
 
-            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "cp /home/site/ext/composer.phar /usr/local/bin/composer"
+            CONNECTION_INFO=$(az webapp create-remote-connection \
+              --resource-group Seguridad-en-TICs_group \
+              --name Seguridad-en-TICs \
+              --query "{port:port}" -o json)
 
-            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "cd /home/site/wwwroot && composer install"
+            PORT=$(echo $CONNECTION_INFO | jq -r '.port')
 
-            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "cd /home/site/wwwroot && php artisan migrate --force"
+            echo "Túnel creado en puerto $PORT"
 
-            az webapp ssh --name Seguridad-en-TICs --resource-group Seguridad-en-TICs_group --command "service nginx restart || nginx -s reload"
+            sleep 5
+
+            run() {
+              curl -s -k \
+                -X POST "http://127.0.0.1:$PORT/api/ssh/command" \
+                -H "Content-Type: application/json" \
+                -d "{\"command\": \"$1\"}"
+            }
+
+            run "cp /home/site/ext/default /etc/nginx/sites-enabled/"
+            run "cp /home/site/ext/composer.phar /usr/local/bin/composer"
+            run "cd /home/site/wwwroot && composer install"
+            run "cd /home/site/wwwroot && php artisan migrate --force"
+            run "service nginx restart || nginx -s reload"
