@@ -65,3 +65,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 .\vendor\bin\phpstan analyze --memory-limit=1G
 php artisan test
 ```
+
+# Web Application Link
+
+- **[Laravel](https://seguridad-en-tics-bkcxcwcbeueccbej.eastus2-01.azurewebsites.net)**
