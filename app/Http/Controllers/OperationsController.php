@@ -94,6 +94,4 @@ class OperationsController extends Controller
 
         return $primos;
     }
-
-
 }
