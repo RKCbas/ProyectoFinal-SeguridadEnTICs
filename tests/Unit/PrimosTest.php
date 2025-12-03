@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Http\Controllers\OperationsController;
 use PHPUnit\Framework\TestCase;
 
-class PrimeNumbersTest extends TestCase
+class PrimosTest extends TestCase
 {
     /**
      * Prueba que la función genere correctamente los números primos hasta un límite dado.
