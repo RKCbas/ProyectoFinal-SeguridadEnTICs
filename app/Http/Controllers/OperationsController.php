@@ -98,4 +98,36 @@ class OperationsController extends Controller
 
         return $primos;
     }
+
+    /**
+     * Calcula el factorial de un número con validaciones de seguridad.
+     *
+     * @param  int  $numero  El número para calcular el factorial
+     * @return array{result: int, input: int}|array{error: string}
+     */
+    public function calcularFactorial(int $numero): array
+    {
+        // Validar que el número sea no negativo
+        if ($numero < 0) {
+            return ['error' => 'El factorial no está definido para números negativos'];
+        }
+
+        // Validar límite máximo para evitar desbordamiento
+        if ($numero > 20) {
+            return ['error' => 'El número debe ser menor o igual a 20 para evitar desbordamiento'];
+        }
+
+        // Casos base
+        if ($numero === 0 || $numero === 1) {
+            return ['result' => 1, 'input' => $numero];
+        }
+
+        // Calcular factorial iterativamente
+        $resultado = 1;
+        for ($i = 2; $i <= $numero; $i++) {
+            $resultado *= $i;
+        }
+
+        return ['result' => $resultado, 'input' => $numero];
+    }
 }
