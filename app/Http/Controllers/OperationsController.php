@@ -130,4 +130,41 @@ class OperationsController extends Controller
 
         return ['result' => $resultado, 'input' => $numero];
     }
+
+    /**
+     * Encuentra los elementos duplicados en un arreglo y cuántas veces se repiten,
+     * y también obtiene los elementos que no tienen repetición.
+     *
+     * @param  int[]  $numeros  Arreglo de números enteros
+     * @return array{
+     *     error?: string,
+     *     duplicados?: array<int, int>,
+     *     noRepetidos?: int[]
+     * }
+     */
+    public function encontrarDuplicados(array $numeros): array
+    {
+        if (empty($numeros)) {
+            return ['error' => 'El arreglo no puede estar vacío'];
+        }
+
+        // Contar frecuencia de cada número
+        $frecuencias = array_count_values($numeros);
+
+        $duplicados = [];
+        $noRepetidos = [];
+
+        foreach ($frecuencias as $numero => $conteo) {
+            if ($conteo > 1) {
+                $duplicados[$numero] = $conteo;
+            } else {
+                $noRepetidos[] = $numero;
+            }
+        }
+
+        return [
+            'duplicados' => $duplicados,
+            'noRepetidos' => $noRepetidos,
+        ];
+    }
 }
