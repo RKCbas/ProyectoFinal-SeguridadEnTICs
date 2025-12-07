@@ -131,63 +131,100 @@ class OperationsController extends Controller
         return ['result' => $resultado, 'input' => $numero];
     }
 
-  /**
- * Calcula la mediana y la(s) moda(s) de un arreglo numérico.
- *
- * @param  array<int, int|float>  $data
- * @return array{
- *     mediana: float|int,
- *     moda: int[]|float[],
- *     valores: array<int, int|float>
- * }|array{error:string}
- */
-public function calcularEstadisticas(array $data): array
-{
-    // Validación: arreglo vacío
-    if (empty($data)) {
-        return ['error' => 'El arreglo no puede estar vacío'];
-    }
-
-    // Validar que todos sean numéricos
-    foreach ($data as $valor) {
-        if (!is_numeric($valor)) {
-            return ['error' => 'Todos los elementos deben ser números'];
+    /**
+     * Encuentra los elementos duplicados en un arreglo y cuántas veces se repiten,
+     * y también obtiene los elementos que no tienen repetición.
+     *
+     * @param  int[]  $numeros  Arreglo de números enteros
+     * @return array{
+     *     error?: string,
+     *     duplicados?: array<int, int>,
+     *     noRepetidos?: int[]
+     * }
+     */
+    public function encontrarDuplicados(array $numeros): array
+    {
+        if (empty($numeros)) {
+            return ['error' => 'El arreglo no puede estar vacío'];
         }
-    }
 
-    // Ordenar los datos para calcular mediana
-    sort($data);
-    $count = count($data);
+        // Contar frecuencia de cada número
+        $frecuencias = array_count_values($numeros);
 
-    // Calcular mediana
-    if ($count % 2 === 1) {
-        // Cantidad impar: valor central
-        $mediana = $data[intdiv($count, 2)];
-    } else {
-        // Cantidad par: promedio de los dos centrales
-        $mid1 = $data[$count / 2 - 1];
-        $mid2 = $data[$count / 2];
-        $mediana = ($mid1 + $mid2) / 2;
-    }
+        $duplicados = [];
+        $noRepetidos = [];
 
-    // Calcular moda
-    $frecuencias = array_count_values($data);
-    $maxFrecuencia = max($frecuencias);
-
-    // Obtener todas las modas (pueden ser varias)
-    $modas = [];
-    foreach ($frecuencias as $numero => $freq) {
-        if ($freq === $maxFrecuencia) {
-            $modas[] = $numero;
+        foreach ($frecuencias as $numero => $conteo) {
+            if ($conteo > 1) {
+                $duplicados[$numero] = $conteo;
+            } else {
+                $noRepetidos[] = $numero;
+            }
         }
+
+        return [
+            'duplicados' => $duplicados,
+            'noRepetidos' => $noRepetidos,
+        ];
     }
 
-    return [
-        'mediana' => $mediana,
-        'moda' => $modas,
-        'valores' => $data,
-    ];
-}
+    /**
+     * Calcula la mediana y la(s) moda(s) de un arreglo numérico.
+     *
+     * @param  array<mixed>  $data
+     * @return array{
+     *     mediana: float|int,
+     *     moda: int[]|float[],
+     *     valores: array<int, int|float>
+     * }|array{error:string}
+     */
+    public function calcularEstadisticas(array $data): array
+    {
+        // Validación: arreglo vacío
+        if (empty($data)) {
+            return ['error' => 'El arreglo no puede estar vacío'];
+        }
+
+        // Validar que todos sean numéricos
+        foreach ($data as $valor) {
+            if (! is_numeric($valor)) {
+                return ['error' => 'Todos los elementos deben ser números'];
+            }
+        }
+
+        // Ordenar los datos para calcular mediana
+        sort($data);
+        $count = count($data);
+
+        // Calcular mediana
+        if ($count % 2 === 1) {
+            // Cantidad impar: valor central
+            $mediana = $data[intdiv($count, 2)];
+        } else {
+            // Cantidad par: promedio de los dos centrales
+            $mid1 = $data[$count / 2 - 1];
+            $mid2 = $data[$count / 2];
+            $mediana = ($mid1 + $mid2) / 2;
+        }
+
+        // Calcular moda
+        $frecuencias = array_count_values($data);
+        $maxFrecuencia = max($frecuencias);
+
+        // Obtener todas las modas (pueden ser varias)
+        $modas = [];
+        foreach ($frecuencias as $numero => $freq) {
+            if ($freq === $maxFrecuencia) {
+                $modas[] = $numero;
+            }
+        }
+
+        return [
+            'mediana' => $mediana,
+            'moda' => $modas,
+            'valores' => $data,
+        ];
+    }
 
     /**
      * Calcula el Máximo Común Divisor (MCD) de dos números usando el algoritmo de Euclides.
@@ -288,5 +325,6 @@ public function calcularEstadisticas(array $data): array
         $mcm = ($absA * $absB) / $mcd;
 
         return ['mcd' => $mcd, 'mcm' => $mcm, 'input_a' => $a, 'input_b' => $b];
+
     }
 }
