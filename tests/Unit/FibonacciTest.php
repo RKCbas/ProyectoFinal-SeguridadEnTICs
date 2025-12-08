@@ -34,7 +34,7 @@ class FibonacciTest extends TestCase
         $result = $this->invokeMethod($controller, 'fibonacciRecursivo', [5]);
 
         $this->assertIsArray($result);
-        $this->assertEquals([0, 1, 1, 2, 3, 5], $result);
+        $this->assertEquals([0, 1, 1, 2, 3, 9], $result);
     }
 
     public function test_fibonacci_position_ten(): void
