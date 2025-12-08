@@ -94,4 +94,11 @@ class FibonacciTest extends TestCase
 
         return $method->invokeArgs($object, $parameters);
     }
+
+    protected function test_nuevo()
+    {
+        $result = $this->invokeMethod($controller, 'fibonacciRecursivo', [3]);
+
+        $this->assertEquals([0, 1, 1], $result);
+    }
 }
