@@ -325,6 +325,5 @@ class OperationsController extends Controller
         $mcm = ($absA * $absB) / $mcd;
 
         return ['mcd' => $mcd, 'mcm' => $mcm, 'input_a' => $a, 'input_b' => $b];
-
     }
 }
